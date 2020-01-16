@@ -10,7 +10,13 @@ Files without an update will be skipped.
 @author: Exluso
 """
 
-import os, logging, shutil, re, sys
+import os, logging, shutil, re, sys, time
+
+#ToDo: createArc function
+def createArc(dest, name):
+''' Creates a .zip Archive named with a sequential number that follows the greater numbered name already in the folder
+INPUT: dest = absolute path where to create the .zip
+        name = base name of the .zip (without sequential number) '''
 
 logging.basicConfig(level = logging.DEBUG, format = "%(asctime)s - %(levelname)s - %(message)s")
 #logging.disable(logging.CRITICAL) #uncomment to remove logging
@@ -40,23 +46,39 @@ logging.debug("Sorgente: %s" %(masterLines[0][:-1]))
 logging.debug("Destinazione: %s" %(masterLines[1]))
 
 print("\nBENVENUTO IN LITHAR.")
-print("L'oggetto del tuo back up è:\n %s." %(masterLines[0][:-1]))
+print("L'oggetto del tuo backup è:\n %s." %(masterLines[0][:-1]))
 print("Il backup verrà conservato in:\n %s. \n" %(masterLines[1]))
 
-#checks if there is already a .zip file made by Lithar
+# Checks if there are previous archives and prints them in order
 
 newZipCoreName = os.path.basename(masterLines[0][:-1])
 
 logging.debug("New Zip Core Name: %s" %(newZipCoreName))
 logging.debug("dir files: %s" %(os.listdir(masterLines[1])))
 
+archList =[]
 for fileName in os.listdir(masterLines[1]):
-    #ToDO: fai in modo che il loop ritorni una lista degli archivi precedenti solo alla fine del loop
+    #ToDO: prova a cambiare il formato della data, avendo l'anno prima dell'ora
     logging.debug("testing now: %s " %(fileName))
-    logging.debug("matchArchive: %s" % str(re.search(newZipCoreName + r'\d*' + ".zip", fileName)))
+    logging.debug("matchArchive: %s" % str(re.search(newZipCoreName + r'\d*' + ".zip", fileName)))    
     if re.search(newZipCoreName, fileName) is not None:
-        print("È stato trovato un archivio con lo stesso nome: %s."  %(fileName))
-    else:
-        print("Non ci sono archivi precedenti. Ne creo uno.") # Placheholder
+        archList.append(fileName)
+    logging.debug(archList)
+
+if len(archList)>0:
+    print("Ho trovato i seguenti archivi che potrebbero contenere backup precedenti: \n")
+    for arc in archList:
+        lmdEpoch = os.path.getmtime(masterLines[1]+os.sep+arc) #return the "last modified" date (hopefully)
+        lmd = time.ctime(lmdEpoch)
+        print((str(archList.index(arc))+ ") ").center(3) + (arc).ljust(15) + str(lmd).rjust(30,"_"))
+    #ToDo: offer to update an archive or create a new one
+else:
+    #ToDo: it there are no archives, offer to create one
+    choice = input("Non ci sono archivi precedenti. Ne creo uno? (y/n)") # placeholder
+
+
+print(100*"-" + "\n")
+
+    
 
 
