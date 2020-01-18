@@ -3,20 +3,47 @@
 Created on Thu Jan  9 14:53:15 2020
 
 The program backs up an entire folder (i.e. all it's contents: file and subfolders) in a .zip archive.
-If there is already a .zip archive with the same format used by the program, it will update
-by overwriting the most recent version (if present) of each file.
+If there is already a .zip archive with the same format used by the program, it will update it
+by overwriting each archived file with a most recent version (if present in the original folder).
 Files without an update will be skipped.
 
 @author: Exluso
 """
 
-import os, logging, shutil, re, sys, time
+import os, logging, shutil, re, sys, time, zipfile
 
-#ToDo: createArc function
+#ToDo: createArc function.
+# So far creates the Archive, and adds the files
+# make it so it does not adds the entire path of folders before the source folder.
 def createArc(dest, name):
-''' Creates a .zip Archive named with a sequential number that follows the greater numbered name already in the folder
-INPUT: dest = absolute path where to create the .zip
-        name = base name of the .zip (without sequential number) '''
+    ''' Creates a .zip Archive named with a sequential number that follows the greater numbered name already in the folder
+    INPUT: dest = absolute path where to create the .zip
+    name = base name of the .zip (without sequential number) '''
+    logging.debug("createArch.archlist: %s" %(archList))
+    logging.debug("name: %s" %(name))
+    #Create archive
+    lastArch = 0
+    try:
+        for arch in archList:
+            serialNum = int(arch.lstrip(name).rstrip(".zip"))
+            logging.debug("Current Serial: %d" % (serialNum))
+            if serialNum > lastArch:
+                lastArch = serialNum
+        logging.debug("lastArch finale: {}".format(lastArch))
+        
+        newArc = zipfile.ZipFile(dest + os.sep + name + str(lastArch+1)+".zip","w")
+    # adds file to archive
+    
+        for curFolder, subFolders, fileNames in os.walk(masterLines[0][:-1]):
+            for fileName in fileNames:
+                savingPath = os.path.join(curFolder, fileName)
+                newArc.write(savingPath, compress_type=zipfile.ZIP_DEFLATED)
+        
+    except:
+        print("Qualcosa è andato storto. Verifica che il nome degli archivi già presenti sia come il seguente:")
+        print('"Nome della folder originale" + numero seriale + ".zip"')
+    finally:
+        newArc.close()
 
 logging.basicConfig(level = logging.DEBUG, format = "%(asctime)s - %(levelname)s - %(message)s")
 #logging.disable(logging.CRITICAL) #uncomment to remove logging
@@ -72,11 +99,13 @@ if len(archList)>0:
         lmd = time.ctime(lmdEpoch)
         print((str(archList.index(arc))+ ") ").center(3) + (arc).ljust(15) + str(lmd).rjust(30,"_"))
     #ToDo: offer to update an archive or create a new one
+    choice = input("Per creare un nuovo archivio digita \"n\".\n")
 else:
     #ToDo: it there are no archives, offer to create one
-    choice = input("Non ci sono archivi precedenti. Ne creo uno? (y/n)") # placeholder
+    choice = input("Non ci sono archivi precedenti. Digita \"n\" per crearne uno nuovo. \n") # placeholder
 
-
+if choice == "n":
+    createArc(masterLines[1], os.path.basename(masterLines[0][:-1]))
 print(100*"-" + "\n")
 
     
