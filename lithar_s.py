@@ -92,12 +92,13 @@ for fileName in os.listdir(masterLines[1]):
 
 if len(archList)>0:
     print("Ho trovato i seguenti archivi che potrebbero contenere backup precedenti: \n")
+    print("#".ljust(3) + "ARCHIVIO".ljust(15) + "ULTIMA MODIFICA".ljust(30))
     for arc in archList:
         lmdEpoch = os.path.getmtime(masterLines[1]+os.sep+arc) #return the "last modified" date (hopefully)
         lmd = time.ctime(lmdEpoch)
-        print((str(archList.index(arc))+ ") ").center(3) + (arc).ljust(15) + str(lmd).rjust(30,"_"))
+        print((str(archList.index(arc))+ ") ").center(3) + (arc).ljust(15) + str(lmd).ljust(30))
     #ToDo: offer to update an archive or create a new one
-    choice = input("Per creare un nuovo archivio digita \"n\".\n")
+    choice = input("\nPer creare un nuovo archivio digita \"n\".\n")
 else:
     #ToDo: it there are no archives, offer to create one
     choice = input("Non ci sono archivi precedenti. Digita \"n\" per crearne uno nuovo. \n") # placeholder
