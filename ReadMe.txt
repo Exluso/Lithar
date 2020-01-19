@@ -19,8 +19,9 @@ ToDo Core:
 -Funzione createArc() che crea un archivio
 -Funzione updateArc() aggiorna un archivio esistente sovrascrivendo i file modificati.
 
-ToDo Optional
+ToDo Optional Refactoring
 -cambiare il formato della data dell'ultima modifica (ad es in PART I)
+-Funzione acquirePath(): modularizzare la funzione per prendere i path sorgente e destinazione
+--Funzione cleanPath(): prende i path da masterFile e rimuove il linebreak alla fine (se presente).
+---- cambiare nel codice le occorrenze di masterLine[0][:-1] ad una variabile col path generato da cleanPath()
 -Funzione createMaster(): crea il Masterfile da cui prendere i path sorgente e destinazione
--Funzione cleanPath(): prende i path da masterFile e rimuove il linebreak alla fine (se presente).
---- cambiare nel codice le occorrenze di masterLine[0][:-1] ad una variabile col path generato da cleanPath()

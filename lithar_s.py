@@ -12,9 +12,6 @@ Files without an update will be skipped.
 
 import os, logging, shutil, re, sys, time, zipfile
 
-#ToDo: createArc function.
-# So far creates the Archive, and adds the files
-# make it so it does not adds the entire path of folders before the source folder.
 def createArc(dest, name):
     ''' Creates a .zip Archive named with a sequential number that follows the greater numbered name already in the folder
     INPUT: dest = absolute path where to create the .zip
@@ -33,8 +30,7 @@ def createArc(dest, name):
         
         newArc = zipfile.ZipFile(dest + os.sep + name + str(lastArch+1)+".zip","w")
     # adds file to archive
-    
-        for curFolder, subFolders, fileNames in os.walk(masterLines[0][:-1]):
+        for curFolder, subFolders, fileNames in os.walk(os.path.basename(masterLines[0][:-1])):
             for fileName in fileNames:
                 savingPath = os.path.join(curFolder, fileName)
                 newArc.write(savingPath, compress_type=zipfile.ZIP_DEFLATED)
@@ -47,6 +43,8 @@ def createArc(dest, name):
 
 logging.basicConfig(level = logging.DEBUG, format = "%(asctime)s - %(levelname)s - %(message)s")
 #logging.disable(logging.CRITICAL) #uncomment to remove logging
+print("----------------------------------------------------------------------------------")
+
 logging.debug("Starts in cwd: " + os.getcwd())
  
 #The program starts and gets the path of the target folder (i.e. the one that 
