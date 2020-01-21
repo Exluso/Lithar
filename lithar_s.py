@@ -9,8 +9,48 @@ Files without an update will be skipped.
 
 @author: Exluso
 """
-
+#ToDo uncomment shebang
+# #! python3
 import os, logging, shutil, re, sys, time, zipfile
+
+def cleanPath(line):
+    ''' removes the linebreak at the end of a string line (if present)'''
+    if line.endswith("\n"):
+        return line[:-1]
+    else:
+        return line
+
+def acquirePath(file):
+    '''Takes the source from the first 2 lines from the LitharMaster.txt
+    se il path termina con un linebreak lo rimuove tramite cleanPath().
+    Returns 2 path source and dest'''
+    try:
+        masterFile = open(os.getcwd()+os.sep + "LitharMaster.txt","r")
+        masterLines= masterFile.readlines()
+
+    except:
+        print("""\nNon è stato trovato alcun LitharMaster.txt file.
+        Per permettere al programma di funzionare crea LitharMaster.txt
+        nella stessa folder del programma inserendo:
+        1 riga il path della folder da zippare
+        2 riga path dove creare l'archivio \n """)
+        sys.exit()
+
+    source = cleanPath(masterLines[0])
+    dest = cleanPath(masterLines[1])
+    masterFile.close()
+
+    return (source, dest)
+
+#ToDo: crea una funzione per far creare il file direttamente al programma 
+# chiedendo all'utente i percorsi necessari.
+def createBak(source, dest):
+    ''' creates a new directory source_bakXX where the source is copied.
+    XX is a serial number, in case of more than 1 backups'''
+    #ToDo implement a proper serial number
+    serialN = "01" #placeholder
+    shutil.copytree(source, dest + os.sep + os.path.basename(source)+ "_bak"+serialN)
+
 
 def createArc(dest, name):
     ''' Creates a .zip Archive named with a sequential number that follows the greater numbered name already in the folder
@@ -30,7 +70,7 @@ def createArc(dest, name):
         
         newArc = zipfile.ZipFile(dest + os.sep + name + str(lastArch+1)+".zip","w")
     # adds file to archive
-        for curFolder, subFolders, fileNames in os.walk(os.path.basename(masterLines[0][:-1])):
+        for curFolder, subFolders, fileNames in os.walk(os.path.basename(source)):
             for fileName in fileNames:
                 savingPath = os.path.join(curFolder, fileName)
                 newArc.write(savingPath, compress_type=zipfile.ZIP_DEFLATED)
@@ -52,37 +92,23 @@ logging.debug("Starts in cwd: " + os.getcwd())
 #it also gets the root for the name of the .zip archive from the target folder
 #LitharMaster.txt is where the path are stored.
 
-try:
-    masterFile = open(os.getcwd()+os.sep + "LitharMaster.txt","r")
-    masterLines= masterFile.readlines()
-
-except:
-    print("""\nNon è stato trovato alcun LitharMaster.txt file.
-    Per permettere al programma di funzionare crea LitharMaster.txt
-    nella stessa folder del programma inserendo:
-    1 riga il path della folder da zippare
-    2 riga path dove creare l'archivio \n """)
-    sys.exit()
-    
-    #ToDo: crea una funzione per far creare il file direttamente al programma 
-    # chiedendo all'utente i percorsi necessari.
-
-logging.debug("Sorgente: %s" %(masterLines[0][:-1]))
-logging.debug("Destinazione: %s" %(masterLines[1]))
+original , bakPath = acquirePath("MasterFile.txt") #path of original folder, path where to create the backup folder
+logging.debug("Sorgente: %s" %(original))
+logging.debug("Destinazione: %s" %(bakPath))
 
 print("\nBENVENUTO IN LITHAR.")
-print("L'oggetto del tuo backup è:\n %s." %(masterLines[0][:-1]))
-print("Il backup verrà conservato in:\n %s. \n" %(masterLines[1]))
+print("L'oggetto del tuo backup è:\n %s." %(original))
+print("Il backup verrà conservato in:\n %s. \n" %(bakPath))
 
 # Checks if there are previous archives and prints them in order
 
-newZipCoreName = os.path.basename(masterLines[0][:-1])
+newZipCoreName = os.path.basename(original)
 
 logging.debug("New Zip Core Name: %s" %(newZipCoreName))
-logging.debug("dir files: %s" %(os.listdir(masterLines[1])))
+logging.debug("dir files: %s" %(os.listdir(bakPath)))
 
 archList =[]
-for fileName in os.listdir(masterLines[1]):
+for fileName in os.listdir(bakPath):
     #ToDO: prova a cambiare il formato della data, avendo l'anno prima dell'ora
     logging.debug("testing now: %s " %(fileName))
     logging.debug("matchArchive: %s" % str(re.search(newZipCoreName + r'\d*' + ".zip", fileName)))    
@@ -94,17 +120,25 @@ if len(archList)>0:
     print("Ho trovato i seguenti archivi che potrebbero contenere backup precedenti: \n")
     print("#".ljust(3) + "ARCHIVIO".ljust(15) + "ULTIMA MODIFICA".ljust(30))
     for arc in archList:
-        lmdEpoch = os.path.getmtime(masterLines[1]+os.sep+arc) #return the "last modified" date (hopefully)
+        lmdEpoch = os.path.getmtime(bakPath+os.sep+arc) #return the "last modified" date (hopefully)
         lmd = time.ctime(lmdEpoch)
         print((str(archList.index(arc))+ ") ").center(3) + (arc).ljust(15) + str(lmd).ljust(30))
     #ToDo: offer to update an archive or create a new one
-    choice = input("\nPer creare un nuovo archivio digita \"n\".\n")
+    print("Per aggiornare un archivio, immetti il numero corrispondente.")
+    choice = input("\nPer creare un nuovo backup digita \"b\", per un archivio digita \"n\".\n")
 else:
     #ToDo: it there are no archives, offer to create one
-    choice = input("Non ci sono archivi precedenti. Digita \"n\" per crearne uno nuovo. \n") # placeholder
+    print("Non ci sono backup. Digita \"b\" per crearne uno.")
+    choice = input("Non ci sono archivi precedenti. Digita \"z\" per crearne uno nuovo. \n") # placeholder
 
-if choice == "n":
-    createArc(masterLines[1], os.path.basename(masterLines[0][:-1]))
+#ToDo: use assert/exception to check that the number of the archive is not greater than len(archList)
+
+if choice == "b":
+    createBak(original, bakPath)
+elif choice == "z":
+    createArc(bakPath, os.path.basename(original))
+
+
 print(100*"-" + "\n")
 
     
