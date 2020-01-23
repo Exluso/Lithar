@@ -42,7 +42,7 @@ def acquirePath(file):
 
     return (source, dest)
 
-#ToDo: crea una funzione per far creare il file direttamente al programma 
+#ToDo: crea una funzione per far creare il file LitharMaster.txt direttamente al programma 
 # chiedendo all'utente i percorsi necessari.
 def createBak(source, dest):
     ''' creates a new directory source_bakXX where the source is copied.
@@ -55,6 +55,7 @@ def createBak(source, dest):
             lastBak = serialN
 
     shutil.copytree(source, dest + os.sep + os.path.basename(source)+ "_bak"+ str(lastBak+1))
+    print("È stata creata una nuova folder di backup: %s" %(os.path.basename(source)+ "_bak"+ str(lastBak+1)))
 
 def checkForFile(tipo = "bak"):
     '''returns a list of the specific file or folder in the bakPath directory
@@ -105,6 +106,40 @@ def createArc(dest, name):
     # finally:
     newArc.close()
 
+def showItems():
+    #Shows backup folder and zip archives already present
+    if len(bakList)>0 or len(archList)>0 :
+        #ToDO: prova a cambiare il formato della data, avendo l'anno prima dell'ora
+        print("Ho trovato i seguenti archivi che potrebbero contenere backup precedenti: \n")
+        print("#".ljust(4) + "ARCHIVIO".ljust(15) + "ULTIMA MODIFICA".ljust(30))
+        for folder in bakList:
+            lmdEpoch = os.path.getmtime(bakPath+os.sep+folder)
+            lmd = time.ctime(lmdEpoch)
+            print((str(bakList.index(folder))+ ") ").center(4," ") + (folder).ljust(15) + str(lmd).ljust(30))
+            
+        for arc in archList:
+            lmdEpoch = os.path.getmtime(bakPath+os.sep+arc) #return the "last modified" date (hopefully)
+            lmd = time.ctime(lmdEpoch)
+            print(("z"+str(archList.index(arc))+ ") ").center(4) + (arc).ljust(15) + str(lmd).ljust(30))
+    
+    if len(bakList) < 1:
+        print("Non sono state trovate folder di backup precedenti.")
+    if len(archList) < 1:
+        print("Non sono stati trovati archivi .zip precedenti.")
+
+def askUser():
+    #Lithar offers to create a backup, to update a backup, to create an archive ToDo: offer to update an archive
+    #ToDo: assegna i comandi a delle variabili e usale sia nelle stringhe che negli "if"
+    print()
+    print("Digita \033[1;33;40m \"b\"\033[0;37;40m per creare una nuova folder di backup.")
+    print("Digita \"aggiorna\" seguito dal numero del backup per aggiornare il backup (es. aggiorna 1).")
+    print("Digita \"z\" per creare un nuovo archivio .zip")
+    #ToDo: use assert/exception to check that the number of the "aggiorna" option is not greater than len(bakList).
+
+    choice = input("Inserisci il comando corrispondente alla tua scelta: \n")
+
+    return choice
+
 logging.basicConfig(level = logging.DEBUG, format = "%(asctime)s - %(levelname)s - %(message)s")
 #logging.disable(logging.CRITICAL) #uncomment to remove logging
 print("----------------------------------------------------------------------------------")
@@ -129,7 +164,7 @@ print("Il backup verrà conservato in:\n %s. \n" %(bakPath))
 # Checks if there are previous archives and prints them in order
 
 logging.debug("New Zip Core Name: %s" %(baseFileName))
-logging.debug("dir files: %s" %(os.listdir(bakPath)))
+logging.debug("files in dir: %s" %(os.listdir(bakPath)))
 
 archList =checkForFile("zip")
 bakList = checkForFile("bak")
@@ -137,40 +172,16 @@ bakList = checkForFile("bak")
 logging.debug("baklist: %s" %(bakList))
 logging.debug("archList: %s" %(archList))
 
-#Shows backup folder and zip archives already present
-if len(bakList)>0 or len(archList)>0 :
-     #ToDO: prova a cambiare il formato della data, avendo l'anno prima dell'ora
-    print("Ho trovato i seguenti archivi che potrebbero contenere backup precedenti: \n")
-    print("#".ljust(4) + "ARCHIVIO".ljust(15) + "ULTIMA MODIFICA".ljust(30))
-    for folder in bakList:
-        lmdEpoch = os.path.getmtime(bakPath+os.sep+folder)
-        lmd = time.ctime(lmdEpoch)
-        print((str(bakList.index(folder))+ ") ").center(4," ") + (folder).ljust(15) + str(lmd).ljust(30))
-        
-    for arc in archList:
-        lmdEpoch = os.path.getmtime(bakPath+os.sep+arc) #return the "last modified" date (hopefully)
-        lmd = time.ctime(lmdEpoch)
-        print(("z"+str(archList.index(arc))+ ") ").center(4) + (arc).ljust(15) + str(lmd).ljust(30))
- 
-if len(bakList) < 1:
-    print("Non sono state trovate folder di backup precedenti.")
-if len(archList) <1:
-    print("Non sono stati trovati archivi .zip precedenti.")
+showItems()
+choice = askUser()
 
-#Lithar offers to create a backup, to update a backup, to create an archive ToDo: offer to update an archive
-#ToDo: assegna i comandi a delle variabili e usale sia nelle stringhe che negli "if"
-print()
-print("Digita \"b\" per creare una nuova folder di backup.")
-print("Digita \"aggiorna\" seguito dal numero del backup per aggiornare il backup (es. aggiorna 1).")
-print("Digita \"z\" per creare un nuovo archivio .zip")
-#ToDo: use assert/exception to check that the number of the "aggiorna" option is not greater than len(bakList).
-
-choice = input("Inserisci il comando corrispondente alla tua scelta: \n")
 
 if choice == "b":
     createBak(original, bakPath)
 elif choice == "z":
     createArc(bakPath, os.path.basename(original))
+else:
+    print("Comando non riconosciuto (o implementato)")
 
 
 print(100*"-" + "\n")

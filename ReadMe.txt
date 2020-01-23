@@ -36,3 +36,4 @@ ToDo Optional e Refactoring
 --Funzione cleanPath(): prende i path da masterFile e rimuove il linebreak alla fine (se presente). --DONE--
 -Funzione createMaster(): crea il Masterfile da cui prendere i path sorgente e destinazione
 -file .bin con metadati sulle date di creazione? goosh
+-file settings con litharsettings class per colori nella cmd line, comandi localizzati... supergooosh
