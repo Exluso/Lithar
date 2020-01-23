@@ -57,6 +57,18 @@ def createBak(source, dest):
     shutil.copytree(source, dest + os.sep + os.path.basename(source)+ "_bak"+ str(lastBak+1))
     print("È stata creata una nuova folder di backup: %s" %(os.path.basename(source)+ "_bak"+ str(lastBak+1)))
 
+def updateBak(bak):
+    #ToDO: trova un modo di farle loopare insieme. la prima folder crea casini.
+    
+    ''' loops into the souce and the _bak folder, comparing the last modified date of each file
+    in the backup and in the source. If the source is more recent it will overwrite the one in the _bak '''
+    for curFolder, folders, fileNames in os.walk(original):
+        for fileName in fileNames:
+            # origLmd = os.path.getmtime(os.path.join(curFolder,fileName))
+            # bakLmd = os.path.getmtime(os.path.join(bak, fileName))
+
+            logging.debug("origin file: %s" %os.path.join(curFolder,fileName))
+            logging.debug("bak file: %s" %os.path.join(bakPath, bak if curFolder == original else curFolder + os.sep + fileName))
 def checkForFile(tipo = "bak"):
     '''returns a list of the specific file or folder in the bakPath directory
     2nd argument: "zip" to check for .zip archives, "bak" to check for backup fodler'''
@@ -106,6 +118,8 @@ def createArc(dest, name):
     # finally:
     newArc.close()
 
+    print("È stato creato un nuovo archivio .zip: %s" %(name + str(lastArch+1)+".zip"))
+
 def showItems():
     #Shows backup folder and zip archives already present
     if len(bakList)>0 or len(archList)>0 :
@@ -154,8 +168,8 @@ logging.debug("Starts in cwd: " + os.getcwd())
 original , bakPath = acquirePath("MasterFile.txt") #path of original folder, path where to create the backup folder
 baseFileName = os.path.basename(original)
 
-logging.debug("Sorgente: %s" %(original))
-logging.debug("Destinazione: %s" %(bakPath))
+logging.debug("original: %s" %(original))
+logging.debug("bakPath: %s" %(bakPath))
 
 print("\nBENVENUTO IN LITHAR.")
 print("L'oggetto del tuo backup è:\n %s." %(original))
@@ -180,6 +194,8 @@ if choice == "b":
     createBak(original, bakPath)
 elif choice == "z":
     createArc(bakPath, os.path.basename(original))
+elif choice == "aggiorna":
+    updateBak(bakPath+os.sep + "Start_bak1")
 else:
     print("Comando non riconosciuto (o implementato)")
 
