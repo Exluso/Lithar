@@ -131,9 +131,9 @@ def askUser():
     #Lithar offers to create a backup, to update a backup, to create an archive ToDo: offer to update an archive
     #ToDo: assegna i comandi a delle variabili e usale sia nelle stringhe che negli "if"
     print()
-    print("Digita \033[1;33;40m \"b\"\033[0;37;40m per creare una nuova folder di backup.")
-    print("Digita \"aggiorna\" seguito dal numero del backup per aggiornare il backup (es. aggiorna 1).")
-    print("Digita \"z\" per creare un nuovo archivio .zip")
+    print("Digita \"\033[1;33;40m b\033[0;37;40m\" per creare una nuova folder di backup.")
+    print("Digita \"\033[1;33;40maggiorna\033[0;37;40m\" seguito dal numero del backup per aggiornare il backup (es. aggiorna 1).")
+    print("Digita \"\033[1;33;40mz\033[0;37;40m\" per creare un nuovo archivio .zip")
     #ToDo: use assert/exception to check that the number of the "aggiorna" option is not greater than len(bakList).
 
     choice = input("Inserisci il comando corrispondente alla tua scelta: \n")
