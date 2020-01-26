@@ -11,7 +11,7 @@ PARTI:
 PART I
 -Benvenuto e controllo della situazione. --DONE--
 -Lithar riceve la sorgente dei dati originali e la destinazione in cui salvare il backup --DONE--
--Lithar mostra eventuali backup fodlers e archivi zip già presenti --DONE--
+-Lithar mostra eventuali backup folders e archivi zip già presenti --DONE--
 -- mostra la data di creazione del back dopo che si inserisce la data nel nome.
 -Lithar chiede che azioni fare:
 -- creare un nuovo backup --DONE--
@@ -26,7 +26,9 @@ ToDo Core:
 -Funzione createArc() che crea un archivio (--DONE--)
 -Funzione createBak() crea l'intero backup semplicemente copincollando le folder --DONE--
 -Funzione checkFile() controlla che folder di backup e archivi .zip esistono già --DONE--
--Funzione updateBak() aggiorna una folder di backup sovrascrivendo i file con modifica più recente.
+-Funzione updateBak()
+-- updateBakFile(): aggiorna una folder di backup sovrascrivendo i file con modifica più recente o inserendole un file mancante.
+-- removeBakFile(): aggiorna una folder di backup rimuovendo i file che non esistono piú nell'originale.
 
 -Funzione updateArc() aggiorna un archivio .zip esistente sovrascrivendo i file modificati. --ABANDONED--
 

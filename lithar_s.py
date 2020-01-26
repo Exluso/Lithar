@@ -54,21 +54,40 @@ def createBak(source, dest):
         if serialN > lastBak:
             lastBak = serialN
 
-    shutil.copytree(source, dest + os.sep + os.path.basename(source)+ "_bak"+ str(lastBak+1))
+    shutil.copytree(source, dest + os.sep + os.path.basename(source)+ "_bak"+ str(lastBak+1)) # mother folder is just the folder with serial number
+    #shutil.copytree(source, dest + os.sep + os.path.basename(source)+ "_bak"+ str(lastBak+1)+os.sep + os.path.basename(source)) #mother folder with same name as original
     print("È stata creata una nuova folder di backup: %s" %(os.path.basename(source)+ "_bak"+ str(lastBak+1)))
 
 def updateBak(bak):
     #ToDO: trova un modo di farle loopare insieme. la prima folder crea casini.
-    
-    ''' loops into the souce and the _bak folder, comparing the last modified date of each file
-    in the backup and in the source. If the source is more recent it will overwrite the one in the _bak '''
-    for curFolder, folders, fileNames in os.walk(original):
-        for fileName in fileNames:
-            # origLmd = os.path.getmtime(os.path.join(curFolder,fileName))
-            # bakLmd = os.path.getmtime(os.path.join(bak, fileName))
+    def updateBakFile(bak):
+        ''' loops into the source and the _bak folder, comparing the last modified date of each file
+        in the backup and in the source. If the source is more recent it will overwrite the one in the _bak
+        If the file is not present in the bak it will be added.'''
+        logging.debug("bak: %s" %bak)
+        for curFolder, folders, fileNames in os.walk(original):
+            for fileName in fileNames:
+                origLmd = os.path.getmtime(os.path.join(curFolder,fileName))
+                try:
+                #Catch an error in case the file in the original does not exist in the bak
+                    bakFilename = os.path.join(bakPath,bak,"" if curFolder == original else os.path.relpath(curFolder,original),fileName)
+                    #logging.debug("backfilename: %s" %bakFilename)
+                    bakLmd = os.path.getmtime(bakFilename)
+                except FileNotFoundError:
+                    print(fileName, "non esiste nel backup e verrà inserito ora.")
+                    bakLmd = 0
+                #logging.debug("curFolder: %s   fileName: %s    original: %s" %(curFolder, fileName, original))
+                logging.debug("origin file: %s fileName: %s" %(os.path.join(curFolder,fileName),fileName))
+                logging.debug("baked file: %s" %bakFilename)
+                logging.debug("----------*-*--------------")
+                if origLmd > bakLmd:
+                    shutil.copy(os.path.join(curFolder,fileName), bakFilename)
+    updateBakFile(bak)
+    #ToDO: una funzione che rimuove file dal bak nel caso siano stati rimossi da originale (dopo la creazione del bak ofc)
+    def removeBakFile():
+        ''' Compares the original and the bak file and removes all the redundant bakfiles that are not in original anymore'''
 
-            logging.debug("origin file: %s" %os.path.join(curFolder,fileName))
-            logging.debug("bak file: %s" %os.path.join(bakPath, bak if curFolder == original else curFolder + os.sep + fileName))
+
 def checkForFile(tipo = "bak"):
     '''returns a list of the specific file or folder in the bakPath directory
     2nd argument: "zip" to check for .zip archives, "bak" to check for backup fodler'''
@@ -129,7 +148,7 @@ def showItems():
         for folder in bakList:
             lmdEpoch = os.path.getmtime(bakPath+os.sep+folder)
             lmd = time.ctime(lmdEpoch)
-            print((str(bakList.index(folder))+ ") ").center(4," ") + (folder).ljust(15) + str(lmd).ljust(30))
+            print((str(bakList.index(folder)+1)+ ") ").center(4," ") + (folder).ljust(15) + str(lmd).ljust(30))
             
         for arc in archList:
             lmdEpoch = os.path.getmtime(bakPath+os.sep+arc) #return the "last modified" date (hopefully)
@@ -189,13 +208,17 @@ logging.debug("archList: %s" %(archList))
 showItems()
 choice = askUser()
 
-
+#Result of the user choice
 if choice == "b":
     createBak(original, bakPath)
 elif choice == "z":
     createArc(bakPath, os.path.basename(original))
-elif choice == "aggiorna":
-    updateBak(bakPath+os.sep + "Start_bak1")
+elif choice.startswith("aggiorna"):
+    #ToDo insert an Assert to verify the number entered
+    try:
+        updateBak(os.path.join(bakPath,bakList[int(choice.lstrip("aggiorna"))-1]))
+    except IndexError:
+        print("Hai inserito un numero che non corrisponde a nessun backup.")
 else:
     print("Comando non riconosciuto (o implementato)")
 
