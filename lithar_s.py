@@ -10,8 +10,11 @@ Files without an update will be skipped.
 @author: Exluso
 """
 #ToDo uncomment shebang
-# #! python3
+#! python3
 import os, logging, shutil, re, sys, time, zipfile, send2trash
+def leaveLithar():
+    input("Premi Invio per lasciare Lithar.")
+    sys.exit()
 
 def cleanPath(line):
     ''' removes the linebreak at the end of a string line (if present)'''
@@ -49,8 +52,12 @@ def createBak(source, dest):
     XX is a serial number, in case of more than 1 backups'''
     
     lastBak = 0
+    serialN=0
     for folder in bakList:
-        serialN = int(folder.lstrip(baseFileName+"_bak"))
+        try:
+            serialN = int(folder.lstrip(baseFileName+"_bak"))
+        except:
+            pass
         if serialN > lastBak:
             lastBak = serialN
 
@@ -197,9 +204,9 @@ def askUser():
     #Lithar offers to create a backup, to update a backup, to create an archive
     #ToDo: assegna i comandi a delle variabili e usale sia nelle stringhe che negli "if" (classe Lithar?)
     print()
-    print("Digita \"\033[1;33;40m b\033[0;37;40m\" per creare una nuova folder di backup.")
-    print("Digita \"\033[1;33;40maggiorna\033[0;37;40m\" seguito dal numero del backup per aggiornare il backup (es. aggiorna 1).")
-    print("Digita \"\033[1;33;40mz\033[0;37;40m\" per creare un nuovo archivio .zip")
+    print("Digita \" b\" per creare una nuova folder di backup.")
+    print("Digita \"aggiorna\" seguito dal numero del backup per aggiornare il backup (es. aggiorna 1).")
+    print("Digita \"z\" per creare un nuovo archivio .zip")
     
     choice = input("Inserisci il comando corrispondente alla tua scelta: \n")
 
@@ -227,6 +234,13 @@ logging.debug("bakPath: %s" %(bakPath))
 print("\nBENVENUTO IN LITHAR.")
 print("L'oggetto del tuo backup è:\n %s." %(original))
 print("Il backup verrà conservato in:\n %s. \n" %(bakPath))
+try:
+    assert original not in bakPath, "Crossed Paths!"
+except AssertionError:
+    print("""Lithar can't create a backup (_bak) folder under the source folder itself.
+Make sure that the destination path of the backup it is not a subPath of the source.
+In other words: the source path should not be included in the backup path""")
+    leaveLithar()
 
 # Checks if there are previous archives and prints them in order
 
@@ -256,6 +270,8 @@ elif choice.startswith("aggiorna"):
         print('Devi inserire un numero dopo "aggiorna".')
 else:
     print("Comando non riconosciuto (o implementato)")
+
+leaveLithar()
 
 
 print(100*"-" + "\n")
