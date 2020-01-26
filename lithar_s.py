@@ -49,7 +49,9 @@ def acquirePath():
 # chiedendo all'utente i percorsi necessari.
 def createBak(source, dest):
     ''' creates a new directory source_bakXX where the source is copied.
-    XX is a serial number, in case of more than 1 backups'''
+    XX is a serial number, in case of more than 1 backups
+    source = path of the original folder
+    dest = path where to create the backup'''
     
     lastBak = 0
     serialN=0
@@ -61,13 +63,13 @@ def createBak(source, dest):
         if serialN > lastBak:
             lastBak = serialN
 
-    shutil.copytree(source, dest + os.sep + os.path.basename(source)+ "_bak"+ str(lastBak+1)) # mother folder is just the folder with serial number
+    shutil.copytree("\\\\?\\" + source, os.path.join(dest, os.path.basename(source)+ "_bak"+ str(lastBak+1))) # mother folder is just the folder with serial number
     #shutil.copytree(source, dest + os.sep + os.path.basename(source)+ "_bak"+ str(lastBak+1)+os.sep + os.path.basename(source)) #mother folder with same name as original
     print("È stata creata una nuova folder di backup: %s" %(os.path.basename(source)+ "_bak"+ str(lastBak+1)))
 
 def updateBak(bak):
     ''' Parent func for updating and removing files in an already existent backup.
-    Also reports the above cahgnes with showChanges'''
+    Also reports the above changes with showChanges'''
     updatedList = []
     redundantList = []
     def updateBakFile(bak):
@@ -82,15 +84,16 @@ def updateBak(bak):
             removeBakFile(os.path.join(bakPath, bak, "" if curFolder == original else os.path.relpath(curFolder,original)),curFolder)
 
             for fileName in fileNames:
-                origLmd = os.path.getmtime(os.path.join(curFolder,fileName))
+                origLmd = os.path.getmtime(os.path.join("\\\\?\\" + curFolder,fileName))
                 try:
                 #Catch an error in case the file in the original does not exist in the bak
-                    bakFilename = os.path.join(bakPath,bak,"" if curFolder == original else os.path.relpath(curFolder,original),fileName)
+                    bakFilename = os.path.join("\\\\?\\" + bakPath,bak,"" if curFolder == original else os.path.relpath(curFolder,original),fileName)
                     #logging.debug("backfilename: %s" %bakFilename)
                     bakLmd = os.path.getmtime(bakFilename)
                 except FileNotFoundError:
                     print(fileName, "non esiste nel backup e verrà inserito ora.")
                     bakLmd = 0
+                    #updatedList.append(fileName)
                 #logging.debug("curFolder: %s   fileName: %s    original: %s" %(curFolder, fileName, original))
                 # logging.debug("origin file: %s fileName: %s" %(os.path.join(curFolder,fileName),fileName))
                 # logging.debug("baked file: %s" %bakFilename)
@@ -111,12 +114,13 @@ def updateBak(bak):
                     redundantFlag = shutil.move(os.path.join(bakFolder,bakFile),os.path.join(bakFolder,"bak_"+bakFile))
                     send2trash.send2trash(redundantFlag)
                     redundantList.append(redundantFlag)
-
+    logging.debug("redundantList: %s" %redundantList)
+    logging.debug("updatedList: %s" %updatedList)
     def showChanges():
         '''shows the list of removed redundant files'''
         def showList(lista):
             for i in lista:
-                print(str(lista.index(i))+")".ljust(4) + os.path.basename(i).ljust(40," ") + os.path.dirname(os.path.relpath(i,os.path.join(bakPath)).ljust(40)))
+                print(str(lista.index(i))+")".ljust(4) + os.path.basename(i).ljust(40," ") + os.path.dirname(i).ljust(50))
         if len(updatedList)>0:
             print("Sono stati aggiornati i seguenti file:")
             showList(updatedList)
@@ -263,10 +267,10 @@ elif choice == "z":
     createArc(bakPath, os.path.basename(original))
 elif choice.startswith("aggiorna"):
     try:
-        updateBak(os.path.join(bakPath,bakList[int(choice.lstrip("aggiorna"))-1]))
+        updateBak(os.path.join("\\\\?\\" + bakPath,bakList[int(choice.lstrip("aggiorna"))-1]))
     except IndexError:
         print("Hai inserito un numero che non corrisponde a nessun backup.")
-    except ValueError:
+    #except ValueError:
         print('Devi inserire un numero dopo "aggiorna".')
 else:
     print("Comando non riconosciuto (o implementato)")
