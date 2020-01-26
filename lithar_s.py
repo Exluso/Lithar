@@ -11,7 +11,7 @@ Files without an update will be skipped.
 """
 #ToDo uncomment shebang
 # #! python3
-import os, logging, shutil, re, sys, time, zipfile
+import os, logging, shutil, re, sys, time, zipfile, send2trash
 
 def cleanPath(line):
     ''' removes the linebreak at the end of a string line (if present)'''
@@ -20,7 +20,7 @@ def cleanPath(line):
     else:
         return line
 
-def acquirePath(file):
+def acquirePath():
     '''Takes the source from the first 2 lines from the LitharMaster.txt
     se il path termina con un linebreak lo rimuove tramite cleanPath().
     Returns 2 path source and dest'''
@@ -59,13 +59,21 @@ def createBak(source, dest):
     print("È stata creata una nuova folder di backup: %s" %(os.path.basename(source)+ "_bak"+ str(lastBak+1)))
 
 def updateBak(bak):
-    #ToDO: trova un modo di farle loopare insieme. la prima folder crea casini.
+    ''' Parent func for updating and removing files in an already existent backup.
+    Also reports the above cahgnes with showChanges'''
+    updatedList = []
+    redundantList = []
     def updateBakFile(bak):
-        ''' loops into the source and the _bak folder, comparing the last modified date of each file
+        ''' bak = basename of the backup folder.
+        Loops into the source and the _bak folder, comparing the last modified date of each file
         in the backup and in the source. If the source is more recent it will overwrite the one in the _bak
         If the file is not present in the bak it will be added.'''
         logging.debug("bak: %s" %bak)
         for curFolder, folders, fileNames in os.walk(original):
+            logging.debug("curFolder: %s curRel: %s" %(curFolder, os.path.relpath(curFolder,original)))
+            
+            removeBakFile(os.path.join(bakPath, bak, "" if curFolder == original else os.path.relpath(curFolder,original)),curFolder)
+
             for fileName in fileNames:
                 origLmd = os.path.getmtime(os.path.join(curFolder,fileName))
                 try:
@@ -77,17 +85,42 @@ def updateBak(bak):
                     print(fileName, "non esiste nel backup e verrà inserito ora.")
                     bakLmd = 0
                 #logging.debug("curFolder: %s   fileName: %s    original: %s" %(curFolder, fileName, original))
-                logging.debug("origin file: %s fileName: %s" %(os.path.join(curFolder,fileName),fileName))
-                logging.debug("baked file: %s" %bakFilename)
-                logging.debug("----------*-*--------------")
+                # logging.debug("origin file: %s fileName: %s" %(os.path.join(curFolder,fileName),fileName))
+                # logging.debug("baked file: %s" %bakFilename)
+                # logging.debug("----------*-*--------------")
                 if origLmd > bakLmd:
                     shutil.copy(os.path.join(curFolder,fileName), bakFilename)
+                    updatedList.append(bakFilename)
+            
+    def removeBakFile(bakFolder,actualFolder):
+        """ checks if a the bakfolder has a file that is not present anymore in the actualFolder (redundantFile).
+        If so, it renames the redundant file with a "bak_" prefix and moves it to the bin."""
+        logging.debug("ActualFolder: %s" %actualFolder)
+        logging.debug("BakFolder: %s" %bakFolder)
+        for bakFile in os.listdir(bakFolder):
+            if os.path.isfile(os.path.join(bakFolder,bakFile)):
+                if bakFile not in os.listdir(actualFolder):
+                    logging.debug("redundant: %s" %bakFile)
+                    redundantFlag = shutil.move(os.path.join(bakFolder,bakFile),os.path.join(bakFolder,"bak_"+bakFile))
+                    send2trash.send2trash(redundantFlag)
+                    redundantList.append(redundantFlag)
+
+    def showChanges():
+        '''shows the list of removed redundant files'''
+        def showList(lista):
+            for i in lista:
+                print(str(lista.index(i))+")".ljust(4) + os.path.basename(i).ljust(40," ") + os.path.dirname(os.path.relpath(i,os.path.join(bakPath)).ljust(40)))
+        if len(updatedList)>0:
+            print("Sono stati aggiornati i seguenti file:")
+            showList(updatedList)
+        print(100*"~")
+        if len(redundantList)>0:
+            print("Sono stati rimossi i seguenti file:")
+            showList(redundantList)
+         
     updateBakFile(bak)
-    #ToDO: una funzione che rimuove file dal bak nel caso siano stati rimossi da originale (dopo la creazione del bak ofc)
-    def removeBakFile():
-        ''' Compares the original and the bak file and removes all the redundant bakfiles that are not in original anymore'''
-
-
+    showChanges()
+    
 def checkForFile(tipo = "bak"):
     '''returns a list of the specific file or folder in the bakPath directory
     2nd argument: "zip" to check for .zip archives, "bak" to check for backup fodler'''
@@ -161,30 +194,31 @@ def showItems():
         print("Non sono stati trovati archivi .zip precedenti.")
 
 def askUser():
-    #Lithar offers to create a backup, to update a backup, to create an archive ToDo: offer to update an archive
-    #ToDo: assegna i comandi a delle variabili e usale sia nelle stringhe che negli "if"
+    #Lithar offers to create a backup, to update a backup, to create an archive
+    #ToDo: assegna i comandi a delle variabili e usale sia nelle stringhe che negli "if" (classe Lithar?)
     print()
     print("Digita \"\033[1;33;40m b\033[0;37;40m\" per creare una nuova folder di backup.")
     print("Digita \"\033[1;33;40maggiorna\033[0;37;40m\" seguito dal numero del backup per aggiornare il backup (es. aggiorna 1).")
     print("Digita \"\033[1;33;40mz\033[0;37;40m\" per creare un nuovo archivio .zip")
-    #ToDo: use assert/exception to check that the number of the "aggiorna" option is not greater than len(bakList).
-
+    
     choice = input("Inserisci il comando corrispondente alla tua scelta: \n")
 
     return choice
 
-logging.basicConfig(level = logging.DEBUG, format = "%(asctime)s - %(levelname)s - %(message)s")
-#logging.disable(logging.CRITICAL) #uncomment to remove logging
-print("----------------------------------------------------------------------------------")
+logging.basicConfig(level = logging.DEBUG, format = "%(asctime)s - %(levelname)s - %(funcName)s - %(message)s")
+logging.disable(logging.CRITICAL) #uncomment to remove logging
+print(100*"-")
 
-logging.debug("Starts in cwd: " + os.getcwd())
+
  
 #The program starts and gets the path of the target folder (i.e. the one that 
 #needs to be zipped and the path where to store the .zip archive
 #it also gets the root for the name of the .zip archive from the target folder
 #LitharMaster.txt is where the path are stored.
 
-original , bakPath = acquirePath("MasterFile.txt") #path of original folder, path where to create the backup folder
+logging.debug("Starts in cwd: " + os.getcwd())
+
+original , bakPath = acquirePath() #path of original folder, path where to create the backup folder 
 baseFileName = os.path.basename(original)
 
 logging.debug("original: %s" %(original))
@@ -214,11 +248,12 @@ if choice == "b":
 elif choice == "z":
     createArc(bakPath, os.path.basename(original))
 elif choice.startswith("aggiorna"):
-    #ToDo insert an Assert to verify the number entered
     try:
         updateBak(os.path.join(bakPath,bakList[int(choice.lstrip("aggiorna"))-1]))
     except IndexError:
         print("Hai inserito un numero che non corrisponde a nessun backup.")
+    except ValueError:
+        print('Devi inserire un numero dopo "aggiorna".')
 else:
     print("Comando non riconosciuto (o implementato)")
 
