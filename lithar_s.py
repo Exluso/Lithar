@@ -8,6 +8,11 @@ If there is already a .zip archive with the same format used by the program, it 
 by overwriting each archived file with a most recent version (if present in the original folder).
 Files without an update will be skipped.
 
+ver 1.1
+
+Better acquirePath() function. Relies on a .bin file that contains a database/dic with the original
+and bakPath of several backup of different folders so that the user can choose which one to handle.
+
 @author: Exluso
 """
 #ToDo uncomment shebang
