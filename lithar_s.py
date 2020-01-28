@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jan  9 14:53:15 2020
+Created on Thu Jan  9 14:53:15 2020 Finished 28/01/2020
+ver 1.0
 
 The program backs up an entire folder (i.e. all it's contents: file and subfolders) in a .zip archive.
 If there is already a .zip archive with the same format used by the program, it will update it
@@ -207,6 +208,7 @@ def showItems():
 def askUser():
     #Lithar offers to create a backup, to update a backup, to create an archive
     #ToDo: assegna i comandi a delle variabili e usale sia nelle stringhe che negli "if" (classe Lithar?)
+    #ToDo: prova a colorare il testo su cmq line
     print()
     print("Digita \" b\" per creare una nuova folder di backup.")
     print("Digita \"aggiorna\" seguito dal numero del backup per aggiornare il backup (es. aggiorna 1).")
