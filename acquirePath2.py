@@ -68,7 +68,29 @@ def acquirePath():
             createSave()
 
     
-    print(askUser0(showBakList())) #print for debug 
-
+    def createRecord():
+        '''creates a new record (entry) in the savedata file.
+        The entry includes the backup name, itand its original
+        and backPath path'''
+        #ToDo controlla che salvi le variabili in shelveIndex
+        
+        name = input("Digita il nome che vuoi dare al backup:\n")
+        original = input("Digita il percorso della folder originale:\n")
+        bakPath = input("Digita il percorso dove salvare i/l backup:\n")
+        
+        
+        shelveIndex = shelve.open(masterFile)
+        
+        shelveIndex[indice].append(name)
+        shelveIndex[name]=(original,bakPath)
+        
+        shelveIndex.close()
+        
+    
+    choice = (askUser0(showBakList()))
+    
+    if choice == "n":
+        createRecord()
+        
 acquirePath()
 
