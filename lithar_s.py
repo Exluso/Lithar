@@ -224,7 +224,7 @@ def askUser():
     return choice
 
 logging.basicConfig(level = logging.DEBUG, format = "%(asctime)s - %(levelname)s - %(funcName)s - %(message)s")
-logging.disable(logging.CRITICAL) #uncomment to remove logging
+#logging.disable(logging.CRITICAL) #uncomment to remove logging
 print(100*"-")
 
 
@@ -242,7 +242,8 @@ baseFileName = os.path.basename(original)
 logging.debug("original: %s" %(original))
 logging.debug("bakPath: %s" %(bakPath))
 
-print("\nBENVENUTO IN LITHAR.")
+
+print("\n/**BENVENUTO IN LITHAR**\\")
 print("L'oggetto del tuo backup è:\n %s." %(original))
 print("Il backup verrà conservato in:\n %s. \n" %(bakPath))
 try:
