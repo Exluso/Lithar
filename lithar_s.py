@@ -3,56 +3,61 @@
 Created on Thu Jan  9 14:53:15 2020 Finished 28/01/2020
 ver 1.0
 
-The program backs up an entire folder (i.e. all it's contents: file and subfolders) in a .zip archive.
-If there is already a .zip archive with the same format used by the program, it will update it
-by overwriting each archived file with a most recent version (if present in the original folder).
-Files without an update will be skipped.
+The program backs up an entire folder (i.e. all it's contents: file and 
+subfolders) in a _bak folder.
+If there is already a _bak folder with the same format used by Lithar 
+it will be updated it by overwriting each archived file with a most 
+recent version (if present in the original folder).Files without an 
+update will be skipped. File removed from the original folder will be
+removed from the _bak folder as well.
 
 ver 1.1
 
-Better acquirePath() function. Relies on a .bin file that contains a database/dic with the original
-and bakPath of several backup of different folders so that the user can choose which one to handle.
+Better acquirePath() function. Relies on a .dat file that contains a 
+database/dic with the original and bakPath of several backup of 
+different folders so that the user can choose which one to handle.
 
 @author: Exluso
 """
-#ToDo uncomment shebang
+
 #! python3
 import os, logging, shutil, re, sys, time, zipfile, send2trash
+from acquirePath2 import acquirePath
+
 def leaveLithar():
     input("Premi Invio per lasciare Lithar.")
     sys.exit()
 
 def cleanPath(line):
-    ''' removes the linebreak at the end of a string line (if present)'''
+    '''removes the linebreak at the end of a string line (if present)'''
     if line.endswith("\n"):
         return line[:-1]
     else:
         return line
 
-def acquirePath():
-    '''Takes the source from the first 2 lines from the LitharMaster.txt
-    se il path termina con un linebreak lo rimuove tramite cleanPath().
-    Returns 2 path source and dest'''
-    try:
-        masterFile = open(os.getcwd()+os.sep + "LitharMaster.txt","r")
-        masterLines= masterFile.readlines()
+# def acquirePath():
+#     '''Takes the source from the first 2 lines from the LitharMaster.txt
+#     se il path termina con un linebreak lo rimuove tramite cleanPath().
+#     Returns 2 path source and dest'''
+#     try:
+#         masterFile = open(os.getcwd()+os.sep + "LitharMaster.txt","r")
+#         masterLines= masterFile.readlines()
 
-    except:
-        print("""\nNon è stato trovato alcun LitharMaster.txt file.
-        Per permettere al programma di funzionare crea LitharMaster.txt
-        nella stessa folder del programma inserendo:
-        1 riga il path della folder da zippare
-        2 riga path dove creare l'archivio \n """)
-        sys.exit()
+#     except:
+#         print("""\nNon è stato trovato alcun LitharMaster.txt file.
+#         Per permettere al programma di funzionare crea LitharMaster.txt
+#         nella stessa folder del programma inserendo:
+#         1 riga il path della folder da zippare
+#         2 riga path dove creare l'archivio \n """)
+#         sys.exit()
 
-    source = cleanPath(masterLines[0])
-    dest = cleanPath(masterLines[1])
-    masterFile.close()
+#     source = cleanPath(masterLines[0])
+#     dest = cleanPath(masterLines[1])
+#     masterFile.close()
 
-    return (source, dest)
+#     return (source, dest)
 
-#ToDo: crea una funzione per far creare il file LitharMaster.txt direttamente al programma 
-# chiedendo all'utente i percorsi necessari.
+
 def createBak(source, dest):
     ''' creates a new directory source_bakXX where the source is copied.
     XX is a serial number, in case of more than 1 backups
@@ -192,18 +197,22 @@ def createArc(dest, name):
 def showItems():
     #Shows backup folder and zip archives already present
     if len(bakList)>0 or len(archList)>0 :
-        #ToDO: prova a cambiare il formato della data, avendo l'anno prima dell'ora
-        print("Ho trovato i seguenti archivi che potrebbero contenere backup precedenti: \n")
-        print("#".ljust(4) + "ARCHIVIO".ljust(15) + "ULTIMA MODIFICA".ljust(30))
+        #ToDO: prova a cambiare il formato della data, avendo l'anno 
+        # prima dell'ora
+        print(("Ho trovato i seguenti archivi che potrebbero contenere backup"
+        " precedenti: \n"))
+        print("#".ljust(4) + "ARCHIVIO".ljust(15)+ "ULTIMA MODIFICA".ljust(30))
         for folder in bakList:
             lmdEpoch = os.path.getmtime(bakPath+os.sep+folder)
             lmd = time.ctime(lmdEpoch)
-            print((str(bakList.index(folder)+1)+ ") ").center(4," ") + (folder).ljust(15) + str(lmd).ljust(30))
+            print((str(bakList.index(folder)+1)+ ") ").center(4," ") 
+                + (folder).ljust(15) + str(lmd).ljust(30))
             
         for arc in archList:
-            lmdEpoch = os.path.getmtime(bakPath+os.sep+arc) #return the "last modified" date (hopefully)
+            lmdEpoch = os.path.getmtime(bakPath+os.sep+arc)
             lmd = time.ctime(lmdEpoch)
-            print(("z"+str(archList.index(arc))+ ") ").center(4) + (arc).ljust(15) + str(lmd).ljust(30))
+            print(("z"+str(archList.index(arc))+ ") ").center(4) 
+            + (arc).ljust(15) + str(lmd).ljust(30))
     
     if len(bakList) < 1:
         print("Non sono state trovate folder di backup precedenti.")
@@ -211,12 +220,15 @@ def showItems():
         print("Non sono stati trovati archivi .zip precedenti.")
 
 def askUser():
-    #Lithar offers to create a backup, to update a backup, to create an archive
-    #ToDo: assegna i comandi a delle variabili e usale sia nelle stringhe che negli "if" (classe Lithar?)
+    '''Lithar offers to create a backup, to update a backup, to create 
+    an archive'''
+    #ToDo: assegna i comandi a delle variabili e usale sia nelle 
+    # stringhe che negli "if" (classe Lithar?)
     #ToDo: prova a colorare il testo su cmq line
     print()
     print("Digita \" b\" per creare una nuova folder di backup.")
-    print("Digita \"aggiorna\" seguito dal numero del backup per aggiornare il backup (es. aggiorna 1).")
+    print(("Digita \"aggiorna\" seguito dal numero del backup per aggiornare "
+    "il backup (es. aggiorna 1)."))
     print("Digita \"z\" per creare un nuovo archivio .zip")
     
     choice = input("Inserisci il comando corrispondente alla tua scelta: \n")
@@ -224,15 +236,9 @@ def askUser():
     return choice
 
 logging.basicConfig(level = logging.DEBUG, format = "%(asctime)s - %(levelname)s - %(funcName)s - %(message)s")
-#logging.disable(logging.CRITICAL) #uncomment to remove logging
+logging.disable(logging.CRITICAL) #uncomment to remove logging
 print(100*"-")
 
-
- 
-#The program starts and gets the path of the target folder (i.e. the one that 
-#needs to be zipped and the path where to store the .zip archive
-#it also gets the root for the name of the .zip archive from the target folder
-#LitharMaster.txt is where the path are stored.
 
 logging.debug("Starts in cwd: " + os.getcwd())
 

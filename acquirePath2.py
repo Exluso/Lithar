@@ -4,6 +4,7 @@ logging.basicConfig(
     level = logging.DEBUG, 
     format = "%(asctime)s - %(levelname)s - %(funcName)s - %(message)s")
 
+logging.disable(logging.CRITICAL) #uncomment to remove logging
 
 def acquirePath():
     """gets the data from a shelve file
@@ -112,11 +113,13 @@ def acquirePath():
             if confirm == "s":
                 return (origin,dest)
             elif confirm == "n":
-                #ToDo trova un modo migliore di uscire
-                #input("Premi INVIO per chiudere Lithar.")
-                sys.exit() #ToDo indaga perché sys.exit non esce dal loop
+                #ToDo trova un modo migliore di uscire.
+                #TROVATO A CULO
+                
+                sys.exit()#ToDo indaga perché sys.exit non esce dal loop
+                #Perché hai messo un exception in fondo!!! Genio!
             else:
-                print("Devi risponde s o n per sì o no.")
+                print('Devi risponde "s" o "n" per sì o no.')
 
 
         shelveIndex.close()
@@ -129,6 +132,7 @@ def acquirePath():
     print(masterFile)
 
     while True:
+        #ToDo: add all the 3 files for shelve? .dat .dir . bak?
         if os.path.isfile(os.path.join(('.'),masterFile)+".dat"):
             break
         else:
