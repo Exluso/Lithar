@@ -41,13 +41,13 @@ def acquirePath():
             "Digita il numero corrispondente per accedere ad un progetto"
             " backup.")
             )
-            print(("Digita 'delete' seguito dal numero corrispondente "
-            "per eliminare un progetto backup . \n\tNOTA: questa proced"
+            print(('Digita "delete" seguito dal numero corrispondente '
+            "per eliminare un progetto backup . \n--NOTA: questa proced"
             "ura non elimina le folder _bak relative al progetto, ma sol"
             "o la sua indicizzazione in Lithar."))
         print('Digita "n" per creare un nuovo progetto backup.')
         print('Digita "chiudi" per chiudere Lithar.')
-
+                
         choice = input() #crash in console!!!
         return choice
 
@@ -103,7 +103,7 @@ def acquirePath():
         shelveIndex = shelve.open(masterFile)
         ListaIndice = shelveIndex[indice]
         origin, dest = shelveIndex[ListaIndice[index]]
-        print()
+        
         print("Vuoi accedere a:")
         print("Progetto: %s".ljust(20) %ListaIndice[index])
         print("Folder attuale: %s".ljust(20) %origin)
@@ -111,11 +111,11 @@ def acquirePath():
         while True:
             confirm = input("\nConfermi (s/n): ")
             if confirm == "s":
+                print(100*"-" + "\n")
                 return (origin,dest)
             elif confirm == "n":
                 #ToDo trova un modo migliore di uscire.
                 #TROVATO A CULO
-                
                 sys.exit()#ToDo indaga perché sys.exit non esce dal loop
                 #Perché hai messo un exception in fondo!!! Genio!
             else:
@@ -139,7 +139,7 @@ def acquirePath():
             createSave()      
     while True:
         choice = (askUser0(showBakList()))
-        
+        print(100*"~" + "\n")
         if choice == "n":
             createRecord()
         elif choice.startswith("delete"):
@@ -153,6 +153,6 @@ def acquirePath():
             except:
                 print("Hai inserito un valore sbagliato, riprova.")
         
-originale, bakPath = acquirePath()
-print("originale: %s \nbakPath: %s" %(originale, bakPath))
+# originale, bakPath = acquirePath()
+# print("originale: %s \nbakPath: %s" %(originale, bakPath))
 

@@ -203,10 +203,11 @@ def askUser():
     # stringhe che negli "if" (classe Lithar?)
     #ToDo: prova a colorare il testo su cmq line
     print()
-    print("Digita \" b\" per creare una nuova folder di backup.")
+    print("Digita \"b\" per creare una nuova folder di backup.")
     print(("Digita \"aggiorna\" seguito dal numero del backup per aggiornare "
     "il backup (es. aggiorna 1)."))
     print("Digita \"z\" per creare un nuovo archivio .zip")
+    print("Digita qualunque altra cosa per uscire da Lithar.")
     
     choice = input("Inserisci il comando corrispondente alla tua scelta: \n")
 
@@ -218,7 +219,7 @@ logging.basicConfig(
 logging.disable(logging.CRITICAL) #uncomment to remove logging
 print(100*"-")
 
-
+print("\n/**BENVENUTO IN LITHAR**\\")
 logging.debug("Starts in cwd: " + os.getcwd())
 
 #path of original folder, path where to create the backup folder
@@ -229,7 +230,7 @@ logging.debug("original: %s" %(original))
 logging.debug("bakPath: %s" %(bakPath))
 
 
-print("\n/**BENVENUTO IN LITHAR**\\")
+
 print("L'oggetto del tuo backup è:\n %s." %(original))
 print("Il backup verrà conservato in:\n %s. \n" %(bakPath))
 try:
@@ -262,13 +263,14 @@ elif choice == "z":
     createArc(bakPath, os.path.basename(original))
 elif choice.startswith("aggiorna"):
     try:
-        updateBak(os.path.join("\\\\?\\" + bakPath,bakList[int(choice.lstrip("aggiorna"))-1]))
+        updateBak(os.path.join("\\\\?\\" 
+        + bakPath,bakList[int(choice.lstrip("aggiorna"))-1]))
     except IndexError:
         print("Hai inserito un numero che non corrisponde a nessun backup.")
     #except ValueError:
         print('Devi inserire un numero dopo "aggiorna".')
 else:
-    print("Comando non riconosciuto (o implementato)")
+    print("Comando non riconosciuto (o implementato).")
 
 leaveLithar()
 
