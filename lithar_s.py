@@ -35,29 +35,6 @@ def cleanPath(line):
     else:
         return line
 
-# def acquirePath():
-#     '''Takes the source from the first 2 lines from the LitharMaster.txt
-#     se il path termina con un linebreak lo rimuove tramite cleanPath().
-#     Returns 2 path source and dest'''
-#     try:
-#         masterFile = open(os.getcwd()+os.sep + "LitharMaster.txt","r")
-#         masterLines= masterFile.readlines()
-
-#     except:
-#         print("""\nNon è stato trovato alcun LitharMaster.txt file.
-#         Per permettere al programma di funzionare crea LitharMaster.txt
-#         nella stessa folder del programma inserendo:
-#         1 riga il path della folder da zippare
-#         2 riga path dove creare l'archivio \n """)
-#         sys.exit()
-
-#     source = cleanPath(masterLines[0])
-#     dest = cleanPath(masterLines[1])
-#     masterFile.close()
-
-#     return (source, dest)
-
-
 def createBak(source, dest):
     ''' creates a new directory source_bakXX where the source is copied.
     XX is a serial number, in case of more than 1 backups
@@ -235,14 +212,17 @@ def askUser():
 
     return choice
 
-logging.basicConfig(level = logging.DEBUG, format = "%(asctime)s - %(levelname)s - %(funcName)s - %(message)s")
+logging.basicConfig(
+    level = logging.DEBUG,
+    format = "%(asctime)s - %(levelname)s - %(funcName)s - %(message)s")
 logging.disable(logging.CRITICAL) #uncomment to remove logging
 print(100*"-")
 
 
 logging.debug("Starts in cwd: " + os.getcwd())
 
-original , bakPath = acquirePath() #path of original folder, path where to create the backup folder 
+#path of original folder, path where to create the backup folder
+original , bakPath = acquirePath()  
 baseFileName = os.path.basename(original)
 
 logging.debug("original: %s" %(original))
@@ -255,9 +235,10 @@ print("Il backup verrà conservato in:\n %s. \n" %(bakPath))
 try:
     assert original not in bakPath, "Crossed Paths!"
 except AssertionError:
-    print("""Lithar can't create a backup (_bak) folder under the source folder itself.
-Make sure that the destination path of the backup it is not a subPath of the source.
-In other words: the source path should not be included in the backup path""")
+    print(("Lithar can't create a backup (_bak) folder under the source folder"
+    " itself. Make sure that the destination path of the backup it is not a "
+    "subPath of the source. In other words: the source path should not be "
+    "included in the backup path"))
     leaveLithar()
 
 # Checks if there are previous archives and prints them in order
