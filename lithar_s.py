@@ -28,6 +28,11 @@ def leaveLithar():
     input("Premi Invio per lasciare Lithar.")
     sys.exit()
 
+def shortPrint(path):
+    '''print on screen the string of a path replacing the central part
+    with ... to improve the display'''
+    #ToDO this function
+
 def cleanPath(line):
     '''removes the linebreak at the end of a string line (if present)'''
     if line.endswith("\n"):
@@ -217,7 +222,7 @@ logging.basicConfig(
     level = logging.DEBUG,
     format = "%(asctime)s - %(levelname)s - %(funcName)s - %(message)s")
 logging.disable(logging.CRITICAL) #uncomment to remove logging
-print(100*"-")
+print(100*"~")
 
 print("\n/**BENVENUTO IN LITHAR**\\")
 logging.debug("Starts in cwd: " + os.getcwd())
@@ -275,7 +280,7 @@ else:
 leaveLithar()
 
 
-print(100*"-" + "\n")
+print(100*"~" + "\n")
 
     
 
