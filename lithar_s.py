@@ -73,13 +73,21 @@ def updateBak(bak):
         logging.debug("bak: %s" %bak)
         for curFolder, folders, fileNames in os.walk(original):
             logging.debug("curFolder: %s curRel: %s" %(curFolder, os.path.relpath(curFolder,original)))
-            
-            removeBakFile(os.path.join("\\\\?\\" + bakPath, bak, "" if curFolder == original else os.path.relpath(curFolder,original)),curFolder)
 
+            try:
+                removeBakFile(os.path.join("\\\\?\\" + bakPath, bak, "" if curFolder == original else os.path.relpath(curFolder,original)),curFolder)
+            except:
+                pass
+            for folder in folders:
+                if folder not in os.listdir(os.path.join("\\\\?\\" + bakPath, bak, "" if curFolder == original else os.path.relpath(curFolder,original))):
+                    os.mkdir(os.path.join("\\\\?\\" + bakPath, bak, "" if curFolder == original else os.path.relpath(curFolder,original), folder))
+
+
+            #print(fileNames)
             for fileName in fileNames:
                 origLmd = os.path.getmtime(os.path.join("\\\\?\\" + curFolder,fileName))
                 try:
-                #Catch an error in case the file in the original does not exist in the bak
+                # Catch an error in case the file in the original does not exist in the bak
                     bakFilename = os.path.join("\\\\?\\" + bakPath,bak,"" if curFolder == original else os.path.relpath(curFolder,original),fileName)
                     #logging.debug("backfilename: %s" %bakFilename)
                     bakLmd = os.path.getmtime(bakFilename)
@@ -94,6 +102,10 @@ def updateBak(bak):
                 if origLmd > bakLmd:
                     shutil.copy(os.path.join("\\\\?\\" + curFolder,fileName), bakFilename)
                     updatedList.append(bakFilename)
+
+            # removeBakFile(os.path.join("\\\\?\\" + bakPath, bak,
+            #                            "" if curFolder == original else os.path.relpath(curFolder, original)),
+            #               curFolder)
             
     def removeBakFile(bakFolder,actualFolder):
         """ checks if a the bakfolder has a file that is not present anymore in the actualFolder (redundantFile).
@@ -269,8 +281,7 @@ elif choice == "z":
     createArc(bakPath, os.path.basename(original))
 elif choice.startswith("aggiorna"):
     try:
-        updateBak(os.path.join("\\\\?\\" 
-        + bakPath,bakList[int(choice.lstrip("aggiorna"))-1]))
+        updateBak(os.path.join("\\\\?\\" + bakPath, bakList[int(choice.lstrip("aggiorna"))-1]))
     except IndexError:
         print("Hai inserito un numero che non corrisponde a nessun backup.")
     #except ValueError:
