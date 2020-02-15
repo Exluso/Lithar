@@ -63,13 +63,10 @@ def acquirePath():
         '''creates a new record (entry) in the savedata file.
         The entry includes the backup name, itand its original
         and backPath path'''
-        #ToDo make it so that the shelveIndex[indice] does not contain 
-        # duplicates when a new project is added with the same name of
-        # a previous one.                
+
         name = input("Digita il nome che vuoi dare al backup:\n")
         original = input("Digita il percorso della folder originale:\n")
         bakPath = input("Digita il percorso dove salvare i/l backup:\n")
-        
         
         shelveIndex = shelve.open(masterFile)
         
@@ -114,9 +111,9 @@ def acquirePath():
                 print(100*"-" + "\n")
                 return (origin,dest)
             elif confirm == "n":
-                #ToDo trova un modo migliore di uscire.
+                # Trova un modo migliore di uscire.
                 #TROVATO A CULO
-                sys.exit()#ToDo indaga perché sys.exit non esce dal loop
+                sys.exit()# indaga perché sys.exit non esce dal loop
                 #Perché hai messo un exception in fondo!!! Genio!
             else:
                 print('Devi risponde "s" o "n" per sì o no.')
@@ -129,8 +126,7 @@ def acquirePath():
     masterFile = "LitharMaster" #name of the save data file
     indice = "indexList" #name of the save file core variable
 
-    print(masterFile)
-
+    
     while True:
         #ToDo: add all the 3 files for shelve? .dat .dir . bak?
         if os.path.isfile(os.path.join(('.'),masterFile)+".dat"):

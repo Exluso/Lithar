@@ -19,10 +19,9 @@ PART I
 -- creare un archivio .zip (sempre dell'originale) --DONE--
 -- Mostra l'elenco degli Archivi precedenti e il timestamp della loro ultima modifica.
 
-PART II (ToDo)
+PART II
 Lithar offre di aggiornare folder di backup
 
-ToDo Core:
 -Funzione createArc() che crea un archivio (--DONE--)
 -Funzione createBak() crea l'intero backup semplicemente copincollando le folder --DONE--
 -Funzione checkFile() controlla che folder di backup e archivi .zip esistono già --DONE--

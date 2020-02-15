@@ -56,7 +56,7 @@ def createBak(source, dest):
         if serialN > lastBak:
             lastBak = serialN
 
-    shutil.copytree("\\\\?\\" + source, os.path.join(dest, os.path.basename(source)+ "_bak"+ str(lastBak+1))) # mother folder is just the folder with serial number
+    shutil.copytree("\\\\?\\" + source, os.path.join("\\\\?\\" + dest, os.path.basename(source)+ "_bak"+ str(lastBak+1))) # mother folder is just the folder with serial number
     #shutil.copytree(source, dest + os.sep + os.path.basename(source)+ "_bak"+ str(lastBak+1)+os.sep + os.path.basename(source)) #mother folder with same name as original
     print("È stata creata una nuova folder di backup: %s" %(os.path.basename(source)+ "_bak"+ str(lastBak+1)))
 
@@ -74,7 +74,7 @@ def updateBak(bak):
         for curFolder, folders, fileNames in os.walk(original):
             logging.debug("curFolder: %s curRel: %s" %(curFolder, os.path.relpath(curFolder,original)))
             
-            removeBakFile(os.path.join(bakPath, bak, "" if curFolder == original else os.path.relpath(curFolder,original)),curFolder)
+            removeBakFile(os.path.join("\\\\?\\" + bakPath, bak, "" if curFolder == original else os.path.relpath(curFolder,original)),curFolder)
 
             for fileName in fileNames:
                 origLmd = os.path.getmtime(os.path.join("\\\\?\\" + curFolder,fileName))
@@ -92,7 +92,7 @@ def updateBak(bak):
                 # logging.debug("baked file: %s" %bakFilename)
                 # logging.debug("----------*-*--------------")
                 if origLmd > bakLmd:
-                    shutil.copy(os.path.join(curFolder,fileName), bakFilename)
+                    shutil.copy(os.path.join("\\\\?\\" + curFolder,fileName), bakFilename)
                     updatedList.append(bakFilename)
             
     def removeBakFile(bakFolder,actualFolder):
@@ -101,10 +101,10 @@ def updateBak(bak):
         logging.debug("ActualFolder: %s" %actualFolder)
         logging.debug("BakFolder: %s" %bakFolder)
         for bakFile in os.listdir(bakFolder):
-            if os.path.isfile(os.path.join(bakFolder,bakFile)):
+            if os.path.isfile(os.path.join("\\\\?\\" + bakFolder,bakFile)):
                 if bakFile not in os.listdir(actualFolder):
                     logging.debug("redundant: %s" %bakFile)
-                    redundantFlag = shutil.move(os.path.join(bakFolder,bakFile),os.path.join(bakFolder,"bak_"+bakFile))
+                    redundantFlag = shutil.move(os.path.join("\\\\?\\" + bakFolder,bakFile),os.path.join(bakFolder,"bak_"+bakFile))
                     send2trash.send2trash(redundantFlag)
                     redundantList.append(redundantFlag)
     logging.debug("redundantList: %s" %redundantList)
@@ -165,7 +165,7 @@ def createArc(dest, name):
     # adds file to archive
     for curFolder, subFolders, fileNames in os.walk(os.path.basename(original)):
         for fileName in fileNames:
-            savingPath = os.path.join(curFolder, fileName)
+            savingPath = os.path.join("\\\\?\\" + curFolder, fileName)
             newArc.write(savingPath, compress_type=zipfile.ZIP_DEFLATED)
         
     # except:
@@ -221,11 +221,12 @@ def askUser():
 logging.basicConfig(
     level = logging.DEBUG,
     format = "%(asctime)s - %(levelname)s - %(funcName)s - %(message)s")
-logging.disable(logging.CRITICAL) #uncomment to remove logging
+# logging.disable(logging.CRITICAL) #uncomment to remove logging
 print(100*"~")
 
 print("\n/**BENVENUTO IN LITHAR**\\")
 logging.debug("Starts in cwd: " + os.getcwd())
+
 
 #path of original folder, path where to create the backup folder
 original , bakPath = acquirePath()  
